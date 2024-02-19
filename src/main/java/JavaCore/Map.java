@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Random;
 
 public class Map extends JPanel {
@@ -23,8 +22,8 @@ public class Map extends JPanel {
     private final int HUMAN_DOT = 1;
     private final int AI_DOT = 2;
     private final int EMPTY_DOT = 0;
-    private int fieldSizeY = 3;
-    private int fieldSizeX = 3;
+    private int fieldSizeY;
+    private int fieldSizeX;
     private char[][] field;
 
     private int panelWidth;
@@ -34,7 +33,7 @@ public class Map extends JPanel {
 
     private boolean isGameOver;
     private boolean isInitialized;
-
+    private String mode;
 
     public Map() {
         addMouseListener(new MouseAdapter() {
@@ -45,6 +44,7 @@ public class Map extends JPanel {
         });
         isInitialized = false;
     }
+
 
 
     private void update(MouseEvent e) {
@@ -77,9 +77,11 @@ public class Map extends JPanel {
         return false;
     }
 
-    void steartNewGame(int mode, int fSzX, int fSzY, int wLen) {
-        System.out.printf("Mode:%d;\nSize: x = %d, y=%d;\n Win Length: %d",
-                mode, fSzX, fSzY, wLen);
+    void steartNewGame(String mode, int fSzX, int fSzY, int wLen) {
+        this.mode = mode;
+        System.out.printf("Mode:"+mode+";\nSize: x = %d, y=%d;\n Win Length: %d",
+                 fSzX, fSzY, wLen);
+
         initMap();
         isGameOver = false;
         isInitialized = true;
@@ -96,17 +98,17 @@ public class Map extends JPanel {
         if (!isInitialized)return;
         panelWidth = getWidth();
         panelHeight = getHeight();
-        cellHeight = panelHeight / 3;
-        cellWidth = panelWidth / 3;
+        cellHeight = panelHeight / fieldSizeY;
+        cellWidth = panelWidth / fieldSizeX;
 
 
         g.setColor(Color.BLACK);
-        for (int h = 0; h < 3; h++) {
+        for (int h = 0; h < fieldSizeY; h++) {
             int y = h * cellHeight;
             g.drawLine(0, y, panelWidth, y);
         }
 
-        for (int w = 0; w < 3; w++) {
+        for (int w = 0; w < fieldSizeX; w++) {
             int x = w * cellWidth;
             g.drawLine(x, 0, x, panelHeight);
         }
@@ -159,13 +161,29 @@ public class Map extends JPanel {
     }
 
     private void initMap() {
-        fieldSizeY = 3;
-        fieldSizeX = 3;
+        mode();
         field = new char[fieldSizeY][fieldSizeX];
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
                 field[i][j] = EMPTY_DOT;
             }
+        }
+    }
+
+    private void mode() {
+        switch (mode){
+            case "3x3":
+                modeWithX(0);
+                modeWithY(0);
+                break;
+            case "5x5":
+                modeWithX(1);
+                modeWithY(1);
+                break;
+            case "9x9":
+                modeWithX(2);
+                modeWithY(2);
+                break;
         }
     }
 
@@ -176,7 +194,7 @@ public class Map extends JPanel {
     private boolean isEmptyCell(int x, int y) {
         return field[y][x] == EMPTY_DOT;
     }
-
+    //TODO: Переработать логику ходов компьютера
     private void aiTurn() {
         int x, y;
         do {
@@ -185,7 +203,7 @@ public class Map extends JPanel {
         } while (!isEmptyCell(x, y));
         field[y][x] = AI_DOT;
     }
-
+    //TODO: Перерабоатать проверку на победу
     private boolean checkWin(int dot) {
         if (field[0][0] == dot && field[0][1] == dot && field[0][2] == dot) return true;
         if (field[1][0] == dot && field[1][1] == dot && field[1][2] == dot) return true;
@@ -210,5 +228,33 @@ public class Map extends JPanel {
             }
         }
         return true;
+    }
+
+    protected int modeWithX(int mode){
+
+        switch (mode){
+            case 0:
+                return fieldSizeX = 3;
+            case 1:
+                return fieldSizeX = 5;
+            case 2:
+                return fieldSizeX = 9;
+            default:
+                return 1;
+        }
+
+    }
+    protected int modeWithY(int mode){
+        switch (mode){
+            case 0:
+                return fieldSizeY = 3;
+            case 1:
+                return fieldSizeY = 5;
+            case 2:
+                return fieldSizeY = 9;
+            default:
+                return 1;
+        }
+
     }
 }

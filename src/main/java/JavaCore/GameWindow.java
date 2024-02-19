@@ -49,7 +49,7 @@ public class GameWindow extends JFrame {
 
     }
 
-    public void startNewGame(int mode, int fSzX, int fSzY, int wLen) {
+    public void startNewGame(String mode, int fSzX, int fSzY, int wLen) {
         map.steartNewGame(mode, fSzX, fSzY, wLen);
     }
 }
