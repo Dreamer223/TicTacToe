@@ -33,7 +33,8 @@ public class Map extends JPanel {
 
     private boolean isGameOver;
     private boolean isInitialized;
-    private String mode;
+//    private String mode;
+    private int winLength;
 
     public Map() {
         addMouseListener(new MouseAdapter() {
@@ -78,7 +79,10 @@ public class Map extends JPanel {
     }
 
     void steartNewGame(String mode, int fSzX, int fSzY, int wLen) {
-        this.mode = mode;
+//        this.mode = mode;
+        this.fieldSizeX=fSzX;
+        this.fieldSizeY=fSzY;
+        this.winLength = wLen;
         System.out.printf("Mode:"+mode+";\nSize: x = %d, y=%d;\n Win Length: %d",
                  fSzX, fSzY, wLen);
 
@@ -161,7 +165,7 @@ public class Map extends JPanel {
     }
 
     private void initMap() {
-        mode();
+//        mode();
         field = new char[fieldSizeY][fieldSizeX];
         for (int i = 0; i < fieldSizeY; i++) {
             for (int j = 0; j < fieldSizeX; j++) {
@@ -170,22 +174,7 @@ public class Map extends JPanel {
         }
     }
 
-    private void mode() {
-        switch (mode){
-            case "3x3":
-                modeWithX(0);
-                modeWithY(0);
-                break;
-            case "5x5":
-                modeWithX(1);
-                modeWithY(1);
-                break;
-            case "9x9":
-                modeWithX(2);
-                modeWithY(2);
-                break;
-        }
-    }
+
 
     private boolean isValidCell(int x, int y) {
         return x >= 0 && x < fieldSizeX && y >= 0 && y < fieldSizeY;
@@ -205,16 +194,23 @@ public class Map extends JPanel {
     }
     //TODO: Перерабоатать проверку на победу
     private boolean checkWin(int dot) {
-        if (field[0][0] == dot && field[0][1] == dot && field[0][2] == dot) return true;
-        if (field[1][0] == dot && field[1][1] == dot && field[1][2] == dot) return true;
-        if (field[2][0] == dot && field[2][1] == dot && field[2][2] == dot) return true;
 
-        // Проверка по трем вертикалям
-        if (field[0][0] == dot && field[1][0] == dot && field[2][0] == dot) return true;
-        if (field[0][1] == dot && field[1][1] == dot && field[2][1] == dot) return true;
-        if (field[0][2] == dot && field[1][2] == dot && field[2][2] == dot) return true;
+        // Проверкак по горизонтали
+        for (int i = 0; i < field.length; i++) {
+            int count = 0;
+            for (int j = 0; j < field[i].length; j++) {
+                if (field[i][j] == dot){
+                    count++;
+                }else if (count == winLength){
+                    return true;
+                }
+            }
+        }
+        // Проверка вертикалям
 
-        // Проверка по двум диагоналям
+
+
+        // Проверка диагоналям
         if (field[0][0] == dot && field[1][1] == dot && field[2][2] == dot) return true;
         if (field[0][2] == dot && field[1][1] == dot && field[2][0] == dot) return true;
 
@@ -228,33 +224,5 @@ public class Map extends JPanel {
             }
         }
         return true;
-    }
-
-    protected int modeWithX(int mode){
-
-        switch (mode){
-            case 0:
-                return fieldSizeX = 3;
-            case 1:
-                return fieldSizeX = 5;
-            case 2:
-                return fieldSizeX = 9;
-            default:
-                return 1;
-        }
-
-    }
-    protected int modeWithY(int mode){
-        switch (mode){
-            case 0:
-                return fieldSizeY = 3;
-            case 1:
-                return fieldSizeY = 5;
-            case 2:
-                return fieldSizeY = 9;
-            default:
-                return 1;
-        }
-
     }
 }
