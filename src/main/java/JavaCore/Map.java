@@ -33,7 +33,7 @@ public class Map extends JPanel {
 
     private boolean isGameOver;
     private boolean isInitialized;
-//    private String mode;
+    //    private String mode;
     private int winLength;
 
     public Map() {
@@ -47,9 +47,8 @@ public class Map extends JPanel {
     }
 
 
-
     private void update(MouseEvent e) {
-        if (isGameOver || !isInitialized)return;
+        if (isGameOver || !isInitialized) return;
         int cellX = e.getX() / cellWidth;
         int cellY = e.getY() / cellHeight;
         if (!isValidCell(cellX, cellY) || !isEmptyCell(cellX, cellY)) return;
@@ -80,11 +79,11 @@ public class Map extends JPanel {
 
     void steartNewGame(String mode, int fSzX, int fSzY, int wLen) {
 //        this.mode = mode;
-        this.fieldSizeX=fSzX;
-        this.fieldSizeY=fSzY;
+        this.fieldSizeX = fSzX;
+        this.fieldSizeY = fSzY;
         this.winLength = wLen;
-        System.out.printf("Mode:"+mode+";\nSize: x = %d, y=%d;\n Win Length: %d",
-                 fSzX, fSzY, wLen);
+        System.out.printf("Mode:" + mode + ";\nSize: x = %d, y=%d;\n Win Length: %d",
+                fSzX, fSzY, wLen);
 
         initMap();
         isGameOver = false;
@@ -99,7 +98,7 @@ public class Map extends JPanel {
     }
 
     private void render(Graphics g) {
-        if (!isInitialized)return;
+        if (!isInitialized) return;
         panelWidth = getWidth();
         panelHeight = getHeight();
         cellHeight = panelHeight / fieldSizeY;
@@ -175,7 +174,6 @@ public class Map extends JPanel {
     }
 
 
-
     private boolean isValidCell(int x, int y) {
         return x >= 0 && x < fieldSizeX && y >= 0 && y < fieldSizeY;
     }
@@ -183,6 +181,7 @@ public class Map extends JPanel {
     private boolean isEmptyCell(int x, int y) {
         return field[y][x] == EMPTY_DOT;
     }
+
     //TODO: Переработать логику ходов компьютера
     private void aiTurn() {
         int x, y;
@@ -192,28 +191,58 @@ public class Map extends JPanel {
         } while (!isEmptyCell(x, y));
         field[y][x] = AI_DOT;
     }
+
     //TODO: Перерабоатать проверку на победу
     private boolean checkWin(int dot) {
 
+
         // Проверкак по горизонтали
+        //TODO: Переработать проверку по горизонтали.
+        // Не считает проверку если начинать игру с крайней правой стороны
         for (int i = 0; i < field.length; i++) {
             int count = 0;
             for (int j = 0; j < field[i].length; j++) {
-                if (field[i][j] == dot){
+                if (field[i][j] == dot) {
                     count++;
-                }else if (count == winLength){
+                }else{
+                    count=0;
+                }
+                if (count == winLength) {
                     return true;
                 }
             }
         }
         // Проверка вертикалям
-
-
-
+        for (int i = 0; i < field.length; i++) {
+            int count = 0;
+            for (int j = 0; j < field[i].length; j++) {
+                if (field[j][i] == dot) {
+                    count++;
+                }else {
+                    count=0;
+                }
+                if (count == winLength) {
+                    return true;
+                }
+            }
+        }
+        int count=0;
         // Проверка диагоналям
-        if (field[0][0] == dot && field[1][1] == dot && field[2][2] == dot) return true;
-        if (field[0][2] == dot && field[1][1] == dot && field[2][0] == dot) return true;
-
+        for (int i = 0; i < fieldSizeY; i++) {
+            if (field[i][i] == dot){
+                count++;
+            }if (count==winLength){
+                return true;
+            }
+        }
+        count=0;
+        for (int i = 0; i < fieldSizeX; i++) {
+            if (field[i][fieldSizeX - 1 - i] == dot) {
+                count++;
+            }if(count==winLength){
+                return true;
+            }
+        }
         return false;
     }
 

@@ -34,7 +34,7 @@ public class SettingsWindow extends JFrame {
         mode2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gameWindow.startNewGame("5x5",5,5,2);
+                gameWindow.startNewGame("5x5",5,5,4);
                 setVisible(false);
 
             }
