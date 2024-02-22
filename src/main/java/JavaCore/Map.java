@@ -62,12 +62,12 @@ public class Map extends JPanel {
     }
 
     private boolean checkEndGame(int dot, int gameOverType) {
-        if (checkWin(dot)) {
-            this.gameOverType = gameOverType;
-            isGameOver = true;
-            repaint();
-            return true;
-        }
+            if (checkWin(dot)) {
+                this.gameOverType = gameOverType;
+                isGameOver = true;
+                repaint();
+                return true;
+            }
         if (isMapFull()) {
             this.gameOverType = STATE_DRAW;
             isGameOver = true;
@@ -182,8 +182,17 @@ public class Map extends JPanel {
         return field[y][x] == EMPTY_DOT;
     }
 
-    //TODO: Переработать логику ходов компьютера
     private void aiTurn() {
+        // Проверка на возможность завершить свою выигрышную комбинацию
+        if (tryToWin(AI_DOT)) {
+            return;
+        }
+        // Проверка на необходимость блокировать выигрышную комбинацию игрока
+        if (tryToWin(HUMAN_DOT)) {
+            return;
+        }
+
+        // Если не найдено выигрышных комбинаций, сделать случайный ход
         int x, y;
         do {
             x = RANDOM.nextInt(fieldSizeX);
@@ -192,58 +201,83 @@ public class Map extends JPanel {
         field[y][x] = AI_DOT;
     }
 
-    //TODO: Перерабоатать проверку на победу
-    private boolean checkWin(int dot) {
-
-
-        // Проверкак по горизонтали
-        //TODO: Переработать проверку по горизонтали.
-        // Не считает проверку если начинать игру с крайней правой стороны
+    private boolean tryToWin(int dot) {
         for (int i = 0; i < field.length; i++) {
-            int count = 0;
             for (int j = 0; j < field[i].length; j++) {
-                if (field[i][j] == dot) {
-                    count++;
-                }else{
-                    count=0;
-                }
-                if (count == winLength) {
+                // Проверка по горизонтали
+                if (j <= field[i].length - winLength && tryLine(dot, i, j, 0, 1)) {
                     return true;
                 }
-            }
-        }
-        // Проверка вертикалям
-        for (int i = 0; i < field.length; i++) {
-            int count = 0;
-            for (int j = 0; j < field[i].length; j++) {
-                if (field[j][i] == dot) {
-                    count++;
-                }else {
-                    count=0;
-                }
-                if (count == winLength) {
+                // Проверка по вертикали
+                if (i <= field.length - winLength && tryLine(dot, i, j, 1, 0)) {
                     return true;
                 }
-            }
-        }
-        int count=0;
-        // Проверка диагоналям
-        for (int i = 0; i < fieldSizeY; i++) {
-            if (field[i][i] == dot){
-                count++;
-            }if (count==winLength){
-                return true;
-            }
-        }
-        count=0;
-        for (int i = 0; i < fieldSizeX; i++) {
-            if (field[i][fieldSizeX - 1 - i] == dot) {
-                count++;
-            }if(count==winLength){
-                return true;
+                // Проверка по основной диагонали
+                if (i <= field.length - winLength && j <= field[i].length - winLength && tryLine(dot, i, j, 1, 1)) {
+                    return true;
+                }
+                // Проверка по побочной диагонали
+                if (i >= winLength - 1 && j <= field[i].length - winLength && tryLine(dot, i, j, -1, 1)) {
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    private boolean tryLine(int dot, int startX, int startY, int dx, int dy) {
+        int count = 0;
+        int emptyCells = 0;
+        for (int i = 0; i < winLength; i++) {
+            if (field[startX + i * dx][startY + i * dy] == dot) {
+                count++;
+            } else if (field[startX + i * dx][startY + i * dy] == EMPTY_DOT) {
+                emptyCells++;
+            }
+        }
+        // Если есть winLength - 1 занятых ячеек и одна свободная, ставим в свободную
+        if (count == winLength - 1 && emptyCells == 1) {
+            for (int i = 0; i < winLength; i++) {
+                if (field[startX + i * dx][startY + i * dy] == EMPTY_DOT) {
+                    field[startX + i * dx][startY + i * dy] = AI_DOT;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkWin(int dot) {
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[i].length; j++) {
+                // Проверка по горизонтали
+                if (j <= field[i].length - winLength && checkLine(dot, i, j, 0, 1)) {
+                    return true;
+                }
+                // Проверка по вертикали
+                if (i <= field.length - winLength && checkLine(dot, i, j, 1, 0)) {
+                    return true;
+                }
+                // Проверка по основной диагонали
+                if (i <= field.length - winLength && j <= field[i].length - winLength && checkLine(dot, i, j, 1, 1)) {
+                    return true;
+                }
+                // Проверка по побочной диагонали
+                if (i >= winLength - 1 && j <= field[i].length - winLength && checkLine(dot, i, j, -1, 1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkLine(int dot, int startX, int startY, int dx, int dy) {
+        for (int i = 0; i < winLength; i++) {
+            if (field[startX + i * dx][startY + i * dy] != dot) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isMapFull() {
