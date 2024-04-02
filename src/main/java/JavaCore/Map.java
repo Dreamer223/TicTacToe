@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class Map extends JPanel {
     public static final Random RANDOM = new Random();
-    public static final int DOT_PADDING = 5;
+    public static final int DOT_PADDING = 10;
 
 
     private int gameOverType;
